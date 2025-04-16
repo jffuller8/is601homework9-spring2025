@@ -8,7 +8,6 @@ FROM python:3.12-slim-bullseye as base
 # PIP_NO_CACHE_DIR: Disables the pip cache for smaller image size
 # PIP_DEFAULT_TIMEOUT: Avoids hanging during install
 # PIP_DISABLE_PIP_VERSION_CHECK: Suppresses the "new version" message
-# POETRY_VERSION: Specifies the version of poetry to install
 ENV PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
     PIP_NO_CACHE_DIR=off \
@@ -20,8 +19,6 @@ WORKDIR /myapp
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
-    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends gcc libpq-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -38,6 +35,10 @@ COPY . /myapp
 # Copy the startup script and make it executable
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
+
+# Create QR code directory with proper permissions
+RUN mkdir -p /myapp/qr_codes && chmod 777 /myapp/qr_codes
+
 # Run the application as a non-root user for security
 RUN useradd -m myuser
 USER myuser

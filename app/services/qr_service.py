@@ -24,7 +24,7 @@ def list_qr_codes(directory_path: Path) -> List[str]:
         logging.error(f"An OS error occurred while listing QR codes: {e}")
         raise
 
-def generate_qr_code(data: str, path: Path, fill_color: str = 'red', back_color: str = 'white', size: int = 10):
+def generate_qr_code(data: str, path: Path, fill_color: str = 'black', back_color: str = 'white', size: int = 10):
     """
     Generates a QR code based on the provided data and saves it to a specified file path.
     Parameters:
@@ -46,7 +46,7 @@ def generate_qr_code(data: str, path: Path, fill_color: str = 'red', back_color:
         logging.error(f"Failed to generate/save QR code: {e}")
         raise
 
-def delete_qr_cde(file_path: Path):
+def delete_qr_code(file_path: Path):
     """
     Deletes the specified QR code image file.
     Parameters:

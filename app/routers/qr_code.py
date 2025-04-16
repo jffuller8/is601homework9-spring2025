@@ -21,7 +21,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Define an endpoint to create QR codes
 # It responds to POST requests at "/qr-codes/" and returns data matching the QRCodeResponse model
 # This endpoint is tagged as "QR Codes" in the API docs and returns HTTP 201 when a QR code is created successfully
-@router.post("/qr-coes/", response_model=QRCodeResponse, status_code=status.HTTP_200_OK, tags=["QR Codes"])
+@router.post("/qr-codes/", response_model=QRCodeResponse, status_code=status.HTTP_201_CREATED, tags=["QR Codes"])
 async def create_qr_code(request: QRCodeRequest, token: str = Depends(oauth2_scheme)):
     # Log the creation request
     logging.info(f"Creating QR code for URL: {request.url}")
@@ -42,7 +42,7 @@ async def create_qr_code(request: QRCodeRequest, token: str = Depends(oauth2_sch
         logging.info("QR code already exists.")
         # If it exists, return a conflict response
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_409_CONFLICT,
             content={"message": "QR code already exists.", "links": links}
         )
 
@@ -61,12 +61,12 @@ async def list_qr_codes_endpoint(token: str = Depends(oauth2_scheme)):
     # Create a response object for each QR code
     responses = [QRCodeResponse(
         message="QR code available",
-        qr_code_url=decode_filename_to_url(qr_file[:-4]),  # Decode the filename to the original URL
+        qr_code_url=f"{SERVER_BASE_URL}/{SERVER_DOWNLOAD_FOLDER}/{qr_file}",  # Correct URL format
         links=generate_links("list", qr_file, SERVER_BASE_URL, f"{SERVER_BASE_URL}/{SERVER_DOWNLOAD_FOLDER}/{qr_file}")
     ) for qr_file in qr_files]
     return responses
 
-@router.delete("/qr-codes/{qr_fileame}", status_code=status.HTTP_200_OK, tags=["QR Codes"])
+@router.delete("/qr-codes/{qr_filename}", status_code=status.HTTP_204_NO_CONTENT, tags=["QR Codes"])
 async def delete_qr_code_endpoint(qr_filename: str, token: str = Depends(oauth2_scheme)):
     logging.info(f"Deleting QR code: {qr_filename}.")
     qr_code_path = QR_DIRECTORY / qr_filename
